@@ -51,7 +51,7 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem('uid');
     setIsLoggedIn(false);
-    // deleteCookie("uid");
+    deleteCookie("uid");
     router.push('/login');
   };
 

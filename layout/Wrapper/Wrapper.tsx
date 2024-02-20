@@ -11,16 +11,20 @@ interface wrapperprops {
   children: JSX.Element | JSX.Element[];
 }
 const Wrapper = (props: wrapperprops) => {
-  const { children } = props
+  const { children } = props;
+  const router=useRouter()
 
-  return (
-    <>
-      <Navbar />
-      <Box height={"auto"} className="body_content">
-        {children}
-      </Box>
-      {/* <Footer /> */}
-    </>
-  );
+
+    return (
+      <>
+        <Navbar />
+        <Box height={"auto"} className="body_content">
+          {children}
+        </Box>
+        {/* <Footer /> */}
+      </>
+    );
+  
 };
+
 export default Wrapper;
