@@ -1,0 +1,29 @@
+{
+    "parentId": "page:somePage",
+    "id": "shape:someId",
+    "typeName": "shape",
+    "type": "geo",
+    "x": 106,
+    "y": 294,
+    "rotation": 0,
+    "index": "a28",
+    "opacity": 1,
+    "isLocked": false,
+    "props": {
+        "w": 200,
+        "h": 200,
+        "geo": "rectangle",
+        "color": "black",
+        "labelColor": "black",
+        "fill": "none",
+        "dash": "draw",
+        "size": "m",
+        "font": "draw",
+        "text": "diagram",
+        "align": "middle",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": ""
+    },
+    "meta": {}
+}

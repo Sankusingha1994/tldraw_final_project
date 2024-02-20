@@ -1,0 +1,41 @@
+.main_body{
+    background-image: url('../public/assests/images/homewellpaper.jpeg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    overflow: hidden;
+}
+.heading{
+    text-align: center;
+    font-size: 50px;
+    color: antiquewhite;
+    margin-top: 18%;
+}
+.sub_heading{
+    text-align: center;
+    font-size: 30px;
+    color: rgb(243, 243, 248);
+}
+.signin_button{
+    color: blue;
+    background-color: rgb(179, 121, 47);
+    text-align: center;
+    margin-left: 40%;
+    width: 100px;
+    height: 30px;
+    border: 2px solid red;
+    border-radius: 20px;
+    font-size: 20px;
+    padding-right: 20px;
+}
+.login_button{
+    color: blue;
+    background-color: rgb(179, 121, 47);
+    text-align: center;
+    padding-right: 20px;
+    width: 100px;
+    height: 30px;
+    border: 2px solid red;
+    border-radius: 20px;
+    font-size: 20px;
+}
