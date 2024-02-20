@@ -11,9 +11,16 @@ export function middleware(request: NextRequest) {
             return NextResponse.rewrite(new URL("/login", request.url))
         }
     }
+    if(!isLogin){
+    
+            if(request.nextUrl.pathname.startsWith("/dashboard")){
+                return NextResponse.rewrite(new URL("/login", request.url))
+            }
+    }
 
     return NextResponse.next()
 }
+
 
 // export function middleware(request: NextRequest) {
 //     const has_token = request.cookies.get("uid");
