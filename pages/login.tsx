@@ -98,7 +98,7 @@ const Login = () => {
         toast.success("You are logged in");
 
         console.log("User created:", user);
-        setCookie('uid', true);
+        // setCookie('uid', true);
         router.push("/dashboard");
       }
     } catch (error: any) {
