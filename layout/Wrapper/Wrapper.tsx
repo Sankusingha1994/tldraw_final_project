@@ -11,25 +11,16 @@ interface wrapperprops {
   children: JSX.Element | JSX.Element[];
 }
 const Wrapper = (props: wrapperprops) => {
-  const { children } = props;
-  const router=useRouter()
+  const { children } = props
 
-  const user = useUser();
-  if (user === false) return <>loading</>;
-  if (!user) {
-    router.push("/login");
-    
-  } else {
-    return (
-      <>
-        <Navbar />
-        <Box height={"auto"} className="body_content">
-          {children}
-        </Box>
-        {/* <Footer /> */}
-      </>
-    );
-  }
+  return (
+    <>
+      <Navbar />
+      <Box height={"auto"} className="body_content">
+        {children}
+      </Box>
+      {/* <Footer /> */}
+    </>
+  );
 };
-
 export default Wrapper;

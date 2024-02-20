@@ -17,12 +17,14 @@ const Wrapper = dynamic(() => import("@/layout/Wrapper/Wrapper"), {
 });
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <Wrapper>
-      <Toaster
+    <>
+      <Wrapper>
+        <Toaster
           richColors
           dir="ltr"
-      />
-      <Component {...pageProps} />
-    </Wrapper>
+        />
+        <Component {...pageProps} />
+      </Wrapper>
+    </>
   );
 }
