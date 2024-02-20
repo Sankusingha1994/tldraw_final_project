@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import {
@@ -36,66 +35,43 @@ const TldrawWrapper = dynamic(
     ssr: false,
   }
 );
-const fetchDrawings = async (slug:string) => {
-  if(typeof slug==='string'){
-     const drawDoc = doc(db, "drawDatabase", slug);
-     const docSnap = await getDoc(drawDoc);
-     console.log(docSnap?.id, "docSnap test");
-     if (docSnap.exists()) {
-        return docSnap.data();
-     }
-   }
+export const fetchDrawings = async (slug: string) => {
+  if (typeof slug === "string") {
+    const drawDoc = doc(db, "drawDatabase", slug);
+    const docSnap = await getDoc(drawDoc);
+    console.log(docSnap?.id, "docSnap test");
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+  }
 
-   return undefined
- };
-
+  return undefined;
+};
 
 type keyType = "inferDarkMode" | "hideUi";
-
-
-
 
 const Single = () => {
   const router = useRouter();
   const { slug } = router.query;
-  const [snapshot,setSnapshot]=useState(undefined)
+  const [snapshot, setSnapshot] = useState(undefined);
 
-
-
-  
-  const setData=async()=>{
-    const res=await fetchDrawings(slug as string)
-
-    setSnapshot(res as any)
-
-
-  }
-
+  const setDrawing = async () => {
+    const res = await fetchDrawings(slug as string);
+    setSnapshot(res as any);
+  };
 
   useEffect(() => {
-
-    setData()
-
-    
+    setDrawing();
   }, [slug]);
-
-
-
- 
 
   return (
     <Container sx={{ my: 5 }}>
-        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-          
-          <Grid item xs={8}>
-            {
-              !!snapshot && <TldrawWrapper initialSnapshot={snapshot} />
-            }
-            
-          </Grid>
-          
+      <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+        <Grid item xs={8}>
+          {!!snapshot && <TldrawWrapper initialSnapshot={snapshot} />}
         </Grid>
-      </Container>
+      </Grid>
+    </Container>
   );
 };
 

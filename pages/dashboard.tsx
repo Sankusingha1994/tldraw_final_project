@@ -39,7 +39,7 @@ import {
 import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
-import { useEditor } from "@tldraw/tldraw";
+import { Editor, useEditor } from "@tldraw/tldraw";
 import { getAuth } from "firebase/auth";
 import { useUser } from "./login";
 
@@ -50,6 +50,9 @@ interface DrawingPost {
   name: string;
   createdAt: number;
   id: string;
+  userToken: string;
+  imageUrl: string,
+  snapshot: any
 }
 
 interface Props {
@@ -57,67 +60,26 @@ interface Props {
 }
 
 export default function Home({ allDrawings }: Props) {
-  const router = useRouter();
-  const auth = getAuth();
-  // const user=useUser()
+  // const auth = getAuth();
 
-  const [title, setTitle] = useState<string>("");
-  const [image, setImage] = useState<Blob | null>(null);
-  const [url, setURL] = useState("");
+  console.log("AllDrawing", allDrawings);
 
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-  };
-  const handleImgChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) setImage(e.target.files[0]);
-  };
+  const userID = localStorage.getItem("uid");
 
-  // const handleUpload=async (e: FormEvent<HTMLFormElement>)=> {
-  //   e.preventDefault();
-  //   const path = `/images/${file.name}`;
-  //   const ref = storage.ref(path);
-  //   await ref.put(file);
-  //   const url = await ref.getDownloadURL();
-  //   setURL(url);
-  //   setFile(null);
-  // }
-  const handleSubmit = async (e: FormEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (!title || !image) {
-      alert("Please draw something");
-      return;
-    }
+  console.log("userId", userID);
 
-    try {
-      const imageRef = storageRef(storage, `images/${uuidv4()}`);
-      await uploadBytes(imageRef, image);
+  const filterdata = allDrawings.filter((item) => item.userToken === userID);
 
-      const imageUrl = await getDownloadURL(imageRef);
-
-      await addDoc(collection(db, "drawdb"), {
-        title,
-        imageUrl,
-        createdAt: serverTimestamp(),
-      });
-
-      alert("drawing created successfully");
-      setTitle("");
-      setImage(null);
-      router.push("/draw");
-    } catch (error) {
-      console.error("Error creating drawing:", error);
-      alert("Failed to create drawings");
-    }
-  };
-
+  console.log("FilterData by User Id", filterdata);
+  
   return (
     <>
       <Container>
         {/* <Typography sx={{ my: 5, textAlign: "center" }}>Home Page</Typography> */}
 
         <Typography variant="h3" sx={{ my: 2, textAlign: "center" }}>
-          {`${auth.currentUser?.email?.charAt(0).toUpperCase()}`}
-          {`${auth.currentUser?.email?.slice(1, 5)}`}'s Drawings
+          {/* {`${auth.currentUser?.email?.charAt(0).toUpperCase()}`} */}
+          {/* {`${auth.currentUser?.email?.slice(1, 5)}`}'s Drawings */}
         </Typography>
 
         <Box></Box>
@@ -131,12 +93,10 @@ export default function Home({ allDrawings }: Props) {
                   </Typography>
                 </Box>
               </CardActionArea>
-
               {/* <br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+</Typography> */}
-
             </CardContent>
           </Card>
-          {allDrawings.map((picture, idx) => (
+          {filterdata.map((picture, idx) => (
             <Grid item key={idx} xs={12} sm={6} md={4}>
               <Card>
                 <CardContent>
@@ -144,12 +104,11 @@ export default function Home({ allDrawings }: Props) {
                     component={Link}
                     href={`/single/${picture.id}`}
                   >
-                    <Box sx={{ height: "200px", border: "1px solid black" }}>
-                      <Typography
-                        variant="h6"
-                        sx={{ textAlign: "center", mt: 10 }}
-                      >{`${picture?.name}`}</Typography>
-                    </Box>
+                    <CardMedia 
+                    image={picture.imageUrl}
+                    sx={{height:'200px'}}
+                    />
+                   
                   </CardActionArea>
 
                   <Typography>

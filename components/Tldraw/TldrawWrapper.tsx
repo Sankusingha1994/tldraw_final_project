@@ -8,7 +8,7 @@ import {
   toDomPrecision,
   useTransform,
 } from "@tldraw/tldraw";
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import {
   Box,
@@ -32,6 +32,7 @@ import { v4 as uuidv4 } from "uuid";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
+import { getCookie, setCookie } from "cookies-next";
 
 // import {TLDrawColor} from '@/config/';
 type keyType = "inferDarkMode" | "hideUi";
@@ -88,6 +89,7 @@ type snapsType = {
   id: string;
   data: StoreSnapshot<TLRecord>;
   name: string;
+  image: File | null;
 };
 
 const style = {
@@ -102,6 +104,9 @@ const style = {
   p: 4,
 };
 
+// const CaptureImage=()=>{
+//   html2canvas
+// }
 const TldrawWrapper = ({ initialSnapshot }: TldrawWrapperProps) => {
   const router = useRouter();
 
@@ -117,6 +122,7 @@ const TldrawWrapper = ({ initialSnapshot }: TldrawWrapperProps) => {
   const [editor, setEditor] = useState<Editor | null>(null);
   const [savedSnapshopts, setSavedSnapShot] = useState<snapsType[]>([]);
   const [name, setName] = useState<string>("");
+  const [image, setImage] = useState<File | null>(null);
 
   const handleConfigChange = (key: keyType) => {
     setConfig({
@@ -125,33 +131,54 @@ const TldrawWrapper = ({ initialSnapshot }: TldrawWrapperProps) => {
     });
   };
 
-  
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setImage(e.target.files[0]);
+    }
+  };
+
+  const userToken = localStorage.getItem("uid");
+  console.log("token:", userToken);
 
   const handleSaveSnapshot = async () => {
-    const snapshot = editor?.store.getSnapshot();
-    // if (editor !== null) alert("Please draw something");
-    setSavedSnapShot([
-      ...(savedSnapshopts as any),
-      {
-        id: dayjs().toISOString(),
-        data: snapshot,
-        name: name,
-      },
-    ]);
+    if (userToken) {
+      const snapshot = editor?.store.getSnapshot();
+      // if (editor !== null) alert("Please draw something");
+      setSavedSnapShot([
+        ...(savedSnapshopts as any),
+        {
+          id: dayjs().toISOString(),
+          data: snapshot,
+          name: name,
+          userid: userToken,
+          image: image,
+        },
+      ]);
+      if (!image) {
+        toast.warning("please add image");
+        return;
+      }
+      try {
+        const imageRef = storageRef(storage, `images/${uuidv4()}`);
+        await uploadBytes(imageRef, image);
 
-    try {
-      await addDoc(collection(db, "drawDatabase"), {
-        snapshot,
-        name,
-        createdAt: serverTimestamp(),
-      });
+        const imageUrl = await getDownloadURL(imageRef);
 
-      toast.success("Drawing created Successfully");
-      router.push('/dashboard')
-      console.log("drawing", snapshot);
-    } catch (error) {
-      console.error("Error creating drawing:", error);
-      alert("Failed to create drawings");
+        await addDoc(collection(db, "drawDatabase"), {
+          snapshot,
+          name,
+          userToken,
+          createdAt: serverTimestamp(),
+          imageUrl,
+        });
+
+        toast.success("Drawing created Successfully");
+        router.push("/dashboard");
+        console.log("drawing", snapshot);
+      } catch (error) {
+        console.error("Error creating drawing:", error);
+        alert("Failed to create drawings");
+      }
     }
   };
 
@@ -162,6 +189,7 @@ const TldrawWrapper = ({ initialSnapshot }: TldrawWrapperProps) => {
           id: dayjs().toISOString(),
           data: initialSnapshot.snapshot,
           name: name,
+          image: image,
         },
       ]);
 
@@ -191,13 +219,6 @@ const TldrawWrapper = ({ initialSnapshot }: TldrawWrapperProps) => {
             <Stack p={1} direction="column" spacing={1}>
               <Button
                 variant="outlined"
-                onClick={() => handleConfigChange("inferDarkMode")}
-              >
-                <span>Toggle Darkmode</span>
-              </Button>
-
-              <Button
-                variant="outlined"
                 onClick={() => handleConfigChange("hideUi")}
               >
                 <span>Show hide ui</span>
@@ -217,10 +238,20 @@ const TldrawWrapper = ({ initialSnapshot }: TldrawWrapperProps) => {
           >
             <Box sx={style}>
               <Typography id="modal-modal-title" variant="h6" component="h2">
-                <TextField value={name} onChange={(e)=>setName(e.target.value)}/>
-
+                <TextField
+                  label="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <TextField
+                  sx={{ my: 1 }}
+                  type="file"
+                  onChange={handleImageChange}
+                />
               </Typography>
-              <Button variant="contained" onClick={()=>handleSaveSnapshot()}>Save</Button>
+              <Button variant="contained" onClick={() => handleSaveSnapshot()}>
+                Save
+              </Button>
             </Box>
           </Modal>
           <Grid item md={8} height="80vh">
